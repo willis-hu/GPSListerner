@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         }
 //        获取地理位置时的查询条件
         String bestProvider = lm.getBestProvider(getCriteria(), true);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -66,17 +66,22 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        Log.d(TAG,"SOMETHING WRONG LINE 69");
         Location location = lm.getLastKnownLocation(bestProvider);
         updateView(location);
 
         lm.addGpsStatusListener(listener);
-
+        /*while(location == null){
+            Log.d(TAG,"location still null");
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+        }*/
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
 
     }
 
     private LocationListener locationListener = new LocationListener() {
         @Override
+//        初始调用一次
         public void onLocationChanged(Location location) {
             updateView(location);
             Log.i(TAG, "时间:" + location.getTime());
@@ -134,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "第一次定位");
                     break;
                 case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-                    tv_location.setText("卫星状态改变\n");
+//                    tv_location.setText("卫星状态改变\n");
                     Log.i(TAG, "卫星状态改变");
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         // TODO: Consider calling
@@ -152,10 +157,12 @@ public class MainActivity extends AppCompatActivity {
                     int count = 0;
                     while (iters.hasNext()&&count <= maxSatellites){
                         GpsSatellite s = iters.next();
+                        Log.i(TAG,"卫星的信噪比为"+s.getSnr());
                         count++;
                     }
                     tv_location.setText("搜索到:" + count + "颗卫星\n");
                     Log.i(TAG,"搜索到:" + count + "颗卫星");
+
                     break;
                 case GpsStatus.GPS_EVENT_STARTED:
                     tv_location.setText("定位启动\n");
